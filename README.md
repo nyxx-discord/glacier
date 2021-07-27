@@ -1,9 +1,9 @@
 # glacier
 
-Markdown Doc Gen in dart
+Markdown documentation in Dart Lang.
 
 <hr />
 
 ### Features
 
-- **Convert .md files to .html site** <br>
+- Open API for use in any UI

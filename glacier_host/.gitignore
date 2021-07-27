@@ -17,7 +17,7 @@ docs/
 doc/api/
 pubspec.lock
 *.iml
-.idea
+../.idea
 *~
 *#
 .#*

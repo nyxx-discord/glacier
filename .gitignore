@@ -4,7 +4,7 @@ local/
 index.html
 docs/
 .buildlog
-.packages
+glacier_host/.packages
 .project
 .pub
 **/build

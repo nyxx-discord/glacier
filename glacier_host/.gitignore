@@ -36,4 +36,4 @@ test-*.dart
 old.*
 *.exe
 
-.idea
+.idea/**

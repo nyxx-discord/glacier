@@ -37,3 +37,4 @@ old.*
 *.exe
 
 .idea/**
+.packages

@@ -12,6 +12,7 @@ part "commands/GenerateCommand.dart";
 
 part "internal/_YamlWriter.dart";
 part "internal/GlacierConfig.dart";
+part "internal/MarkdownMetadata.dart";
 
 part "utils/ConfigUtils.dart";
 part "utils/DirectoryUtils.dart";

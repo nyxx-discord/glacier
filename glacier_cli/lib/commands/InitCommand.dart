@@ -37,12 +37,14 @@ class InitCommand extends Command {
     final configFile = await File("./glacier.yaml").create();
     await configFile.writeAsString(config.toString());
 
-    await Directory("./src").create();
+    final srcDirectory = await Directory(config.sourceDirectory).create();
 
-    final exampleFile = await File("./src/index.md").create();
+    final exampleFile = await File(join(srcDirectory.absolute.path, "index.md")).create();
     await exampleFile.writeAsString(_getConfigMdContent(config));
 
-    final baseHtml = await File("./src/base.html").create();
+    final baseDirectory = await Directory(config.baseDirectory).create();
+
+    final baseHtml = await File(join(baseDirectory.absolute.path, "base.html")).create();
     await baseHtml.writeAsString(_getBaseHtmlContent(config));
   }
 }

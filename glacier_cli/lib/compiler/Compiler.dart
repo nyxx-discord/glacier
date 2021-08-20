@@ -1,5 +1,26 @@
 part of glacier_cli;
 
+class FileCacheable {
+  late final File file;
+  late final MarkdownMetadata metadata;
+  late final String content;
+
+  FileCacheable(this.file, this.metadata, this.content);
+
+  static Future<FileCacheable> initFileCacheable(File file) async {
+    final sourceContent = await file.readAsString();
+
+    final firstMatch = sourceContent.indexOf("---");
+    final lastMatch = sourceContent.indexOf("---", 3);
+    final metadataPart = sourceContent.substring(firstMatch + 3, lastMatch);
+    final strippedContent = sourceContent.substring(lastMatch + 3);
+
+    final fileMetadata = MarkdownMetadata._fromRaw(metadataPart);
+
+    return FileCacheable(file, fileMetadata, strippedContent);
+  }
+}
+
 class Compiler {
   final Directory sourceDir;
   final Directory destinationDir;
@@ -10,29 +31,25 @@ class Compiler {
     this.template = Template(templateContent, name: "base.html");
   }
 
+  final Map<String, FileCacheable> fileContentCache = {};
+
   Future<void> compile() async {
     final mdFilesStream = await sourceDir.list().where((entity) => extension(entity.path) == ".md").cast<File>().toList();
 
     for (final sourceFile in mdFilesStream) {
-      await this.processFile(sourceFile);
+      this.fileContentCache[sourceFile.absolute.path] = await FileCacheable.initFileCacheable(sourceFile);
+    }
+
+    for (final fileCacheableEntry in this.fileContentCache.entries) {
+
     }
   }
 
-  Future<void> processFile(File sourceFile) async {
-    print("got file: ${sourceFile.path}");
-
-    final sourceFileName = basenameWithoutExtension(sourceFile.path);
+  Future<void> processFile(FileCacheable fileCacheable) async {
+    final sourceFileName = basenameWithoutExtension(fileCacheable.file.path);
     final destFileName = "${join(destinationDir.absolute.path, sourceFileName)}.html";
 
-    final sourceContent = await sourceFile.readAsString();
-
-    final firstMatch = sourceContent.indexOf("---");
-    final lastMatch = sourceContent.indexOf("---", 3);
-    final metadataPart = sourceContent.substring(firstMatch + 3, lastMatch);
-    final strippedContent = sourceContent.substring(lastMatch + 3);
-
-    final fileMetadata = MarkdownMetadata._fromRaw(metadataPart);
-    final compiledContent = await this.processTemplate(strippedContent, fileMetadata);
+    final compiledContent = await this.processTemplate(fileCacheable.content, fileCacheable.metadata);
 
     final destFile = File(destFileName);
     if (!await destFile.exists()) {

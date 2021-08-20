@@ -1,5 +1,24 @@
 part of glacier_cli;
 
+String _getBaseHtmlContent(GlacierConfig config) => """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+</head>
+<body>
+    {{{body}}}
+</body>
+</html>
+""";
+
+String _getIndexMdContent(GlacierConfig config) => """
+# ${config.name}"
+""";
+
 class InitCommand extends Command {
   @override
   final String name = "init";
@@ -15,12 +34,15 @@ class InitCommand extends Command {
 
     final config = ConfigUtils.createConfig();
 
-    var configFile = await File("./glacier.yaml").create();
-    configFile = await configFile.writeAsString(config.toString());
+    final configFile = await File("./glacier.yaml").create();
+    await configFile.writeAsString(config.toString());
 
     final srcDirectory = Directory("./src").create();
 
-    var exampleFile = await File("./src/index.md").create();
-    exampleFile = await exampleFile.writeAsString("# ${config.name}");
+    final exampleFile = await File("./src/index.md").create();
+    await exampleFile.writeAsString(_getIndexMdContent(config));
+
+    final baseHtml = await File("./src/base.html").create();
+    await exampleFile.writeAsString(_getBaseHtmlContent(config));
   }
 }

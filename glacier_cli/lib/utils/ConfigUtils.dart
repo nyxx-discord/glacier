@@ -27,5 +27,5 @@ class ConfigUtils {
   }
 
   static bool doesConfigExistSync({String path = "./glacier.yaml"}) => File(path).existsSync();
-  static Future<bool> doesConfigExist({String path = "./glacier.yaml"}) async => File(path).exists();
+  static Future<bool> doesConfigExist({String path = "./glacier.yaml"}) => File(path).exists();
 }

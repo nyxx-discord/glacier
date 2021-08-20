@@ -11,8 +11,9 @@ class Compiler {
   }
 
   Future<void> compile() async {
-    final mdFilesStream = sourceDir.list().where((entity) => extension(entity.path) == ".md").cast<File>();
-    await for (final sourceFile in mdFilesStream) {
+    final mdFilesStream = await sourceDir.list().where((entity) => extension(entity.path) == ".md").cast<File>().toList();
+
+    for (final sourceFile in mdFilesStream) {
       await this.processFile(sourceFile);
     }
   }

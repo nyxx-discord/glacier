@@ -4,7 +4,7 @@ import "dart:io";
 
 import "package:args/command_runner.dart";
 import "package:markdown/markdown.dart";
-import 'package:mustache_template/mustache.dart';
+import "package:mustache_template/mustache.dart";
 import "package:path/path.dart";
 import "package:yaml/yaml.dart";
 

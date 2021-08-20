@@ -15,7 +15,7 @@ String _getBaseHtmlContent(GlacierConfig config) => """
 </html>
 """;
 
-String _getIndexMdContent(GlacierConfig config) => """
+String _getConfigMdContent(GlacierConfig config) => """
 # ${config.name}"
 """;
 
@@ -37,12 +37,12 @@ class InitCommand extends Command {
     final configFile = await File("./glacier.yaml").create();
     await configFile.writeAsString(config.toString());
 
-    final srcDirectory = Directory("./src").create();
+    await Directory("./src").create();
 
     final exampleFile = await File("./src/index.md").create();
-    await exampleFile.writeAsString(_getIndexMdContent(config));
+    await exampleFile.writeAsString(_getConfigMdContent(config));
 
     final baseHtml = await File("./src/base.html").create();
-    await exampleFile.writeAsString(_getBaseHtmlContent(config));
+    await baseHtml.writeAsString(_getBaseHtmlContent(config));
   }
 }

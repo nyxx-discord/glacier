@@ -5,6 +5,8 @@ class FileCacheable {
   late final MarkdownMetadata metadata;
   late final String content;
 
+  String get url => "${basenameWithoutExtension(this.file.path)}.html";
+
   FileCacheable(this.file, this.metadata, this.content);
 
   static Future<FileCacheable> initFileCacheable(File file) async {
@@ -34,6 +36,10 @@ class Compiler {
   final Map<String, FileCacheable> fileContentCache = {};
 
   Future<void> compile() async {
+    if (!await this.destinationDir.exists()) {
+      await this.destinationDir.create();
+    }
+
     final mdFilesStream = await sourceDir.list().where((entity) => extension(entity.path) == ".md").cast<File>().toList();
 
     for (final sourceFile in mdFilesStream) {
@@ -41,7 +47,7 @@ class Compiler {
     }
 
     for (final fileCacheableEntry in this.fileContentCache.entries) {
-
+      await this.processFile(fileCacheableEntry.value);
     }
   }
 
@@ -65,6 +71,10 @@ class Compiler {
     return this.template.renderString({
       "title": metadata.title,
       "body": outputMarkdown,
+      "sidebar_entries": this.fileContentCache.entries.map((entry) => {
+        "url": entry.value.url,
+        "name": entry.value.metadata.title,
+      })
     });
   }
 }

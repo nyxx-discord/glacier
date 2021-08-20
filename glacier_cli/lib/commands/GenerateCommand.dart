@@ -13,7 +13,6 @@ class GenerateCommand extends Command {
     "g",
   ];
 
-
   @override
   Future<void> run() async {
     final config = GlacierConfig.loadFromFile();

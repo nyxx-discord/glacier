@@ -10,12 +10,24 @@ String _getBaseHtmlContent(GlacierConfig config) => """
     <title>{{title}}</title>
 </head>
 <body>
+  <div class='sidebar'>
+    {{# sidebar_entries}}
+      <p><a href='{{url}}'>{{name}}</a></p>  
+    {{/ sidebar_entries}}
+  </div>
+  <div class='body'>
     {{{body}}}
+  </div>
 </body>
 </html>
 """;
 
 String _getConfigMdContent(GlacierConfig config) => """
+---
+title: Example title
+author: xyz
+timestamp: 2021-08-20
+---
 # ${config.name}"
 """;
 

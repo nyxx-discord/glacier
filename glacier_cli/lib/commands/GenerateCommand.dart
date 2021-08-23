@@ -21,9 +21,7 @@ class GenerateCommand extends Command {
     final destinationDir = Directory.fromUri(Uri.parse(Directory(config.destinationDirectory).absolute.path));
     final baseFilesDir = Directory.fromUri(Uri.parse(Directory(config.baseDirectory).absolute.path));
 
-    final templateFileContent = await File(Uri.parse(join(baseFilesDir.absolute.path, "base.html")).path).readAsString();
-
-    final compiler = Compiler(sourceDir, destinationDir, templateFileContent);
+    final compiler = Compiler(sourceDir, destinationDir, baseFilesDir);
     await compiler.compile();
   }
 }

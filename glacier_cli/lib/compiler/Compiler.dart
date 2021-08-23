@@ -26,10 +26,12 @@ class FileCacheable {
 class Compiler {
   final Directory sourceDir;
   final Directory destinationDir;
+  final Directory baseFilesDir;
 
   late final Template template;
 
-  Compiler(this.sourceDir, this.destinationDir, String templateContent) {
+  Compiler(this.sourceDir, this.destinationDir, this.baseFilesDir) {
+    final templateContent = File(Uri.parse(join(baseFilesDir.absolute.path, "base.html")).path).readAsStringSync();
     this.template = Template(templateContent, name: "base.html");
   }
 
@@ -48,6 +50,20 @@ class Compiler {
 
     for (final fileCacheableEntry in this.fileContentCache.entries) {
       await this.processFile(fileCacheableEntry.value);
+    }
+
+    await this.copyFiles();
+  }
+
+  Future<void> copyFiles() async {
+   final filesToCopy = this.baseFilesDir.list()
+        .where((event) => event is File)
+        .where((event) => basename(event.path).endsWith(".js") || basename(event.path).endsWith(".css"))
+        .where((event) => !event.path.contains("base/base.html"))
+        .cast<File>();
+
+    await for (final file in filesToCopy) {
+      await file.copy(join(destinationDir.absolute.path, basename(file.path)));
     }
   }
 
@@ -71,10 +87,29 @@ class Compiler {
     return this.template.renderString({
       "title": metadata.title,
       "body": outputMarkdown,
-      "sidebar_entries": this.fileContentCache.entries.map((entry) => {
-        "url": entry.value.url,
-        "name": entry.value.metadata.title,
-      })
+      "sidebar_entries": this._getSidebarEntries()
     });
+  }
+
+  Iterable<Map<String, dynamic>> _getSidebarEntries() {
+    final sidebarEntries = this.fileContentCache.entries.map((entry) => {
+      "url": entry.value.url,
+      "name": entry.value.metadata.title,
+      "category": entry.value.metadata.title,
+    });
+
+    final sidebarEntriesFinal = <Map<String, dynamic>>[];
+    for (final sidebarEntry in sidebarEntries) {
+      try {
+        final result = sidebarEntriesFinal.firstWhere((element) => element["category"] == sidebarEntry["category"]);
+        result["entries"].add(sidebarEntry);
+      } on StateError {
+        sidebarEntriesFinal.add({
+          "category": sidebarEntry["category"],
+          "entries": [sidebarEntry],
+        });
+      }
+    }
+    return sidebarEntriesFinal;
   }
 }

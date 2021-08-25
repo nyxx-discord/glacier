@@ -1,7 +1,88 @@
 part of glacier_cli;
 
 String _getBaseCssContent(GlacierConfig config) => """
+:root {
+    --default-padding: 10px;
+    --nav-height: 50px;
+    --default-background: #2c2f33;
+    --sidebar-background: #23272a;
+    color: #d9dadb;
+}
 
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    background-color: var(--default-background);
+}
+
+a {
+    color: white;
+}
+
+a:hover {
+    color: lightblue;
+}
+
+.navbar {
+    width: calc(100% - 2 * var(--default-padding));
+    height: var(--nav-height);
+    background-color: var(--default-background);
+    padding: var(--default-padding);
+    outline: solid black 2px;
+}
+
+.sidebar {
+    height: calc(100% - 2 * var(--default-padding));
+    width: calc(15% - 2 * var(--default-padding));
+    float: left;
+    background-color: var(--sidebar-background);
+    padding: var(--default-padding);
+}
+
+.body {
+    height: calc(100% - 2 * var(--default-padding));
+    width: calc(85% - 2 * var(--default-padding));
+    float: right;
+    background-color: var(--default-background);
+    padding: var(--default-padding);
+}
+
+@media screen and (max-width: 1200px) {
+    .sidebar {
+        height: calc(100% - 2 * var(--default-padding));
+        width: calc(40% - 2 * var(--default-padding));
+        float: left;
+        background-color: var(--sidebar-background);
+        padding: var(--default-padding);
+    }
+    
+    .body {
+        height: calc(100% - 2 * var(--default-padding));
+        width: calc(60% - 2 * var(--default-padding));
+        float: right;
+        background-color: var(--default-background);
+        padding: var(--default-padding);
+    }
+}
+
+@media screen and (max-width: 1800px) {
+    .sidebar {
+        height: calc(100% - 2 * var(--default-padding));
+        width: calc(25% - 2 * var(--default-padding));
+        float: left;
+        background-color: var(--sidebar-background);
+        padding: var(--default-padding);
+    }
+    
+    .body {
+        height: calc(100% - 2 * var(--default-padding));
+        width: calc(75% - 2 * var(--default-padding));
+        float: right;
+        background-color: var(--default-background);
+        padding: var(--default-padding);
+    }
+}
 """;
 
 String _getBaseJsContent(GlacierConfig config) => """
@@ -18,6 +99,9 @@ String _getBaseHtmlContent(GlacierConfig config) => """
     <link rel='stylesheet' href='base.css'>
     <script defer src="base.js"></script>
     
+    <link rel="stylesheet"href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/a11y-dark.min.css">
+    <script defer src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+    
     <title>{{title}}</title>
 </head>
 <body>
@@ -25,7 +109,7 @@ String _getBaseHtmlContent(GlacierConfig config) => """
     {{# sidebar_entries}}
       <h5>{{category}}</h5>
       {{# entries}}
-        <p><a href='{{url}}'>{{name}}</a></p>
+        <p>➡ <a href='{{url}}'>{{name}}</a></p>
       {{/ entries}}
     {{/ sidebar_entries}}
   </div>

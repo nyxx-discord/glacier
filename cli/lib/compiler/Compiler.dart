@@ -31,7 +31,7 @@ class Compiler {
   late final Template template;
 
   Compiler(this.sourceDir, this.destinationDir, this.baseFilesDir) {
-    final templateContent = File(Uri.parse(path.join(baseFilesDir.absolute.path, "base.html")).path).readAsStringSync();
+    final templateContent = File(path.join(baseFilesDir.absolute.path, "base.html")).readAsStringSync();
     this.template = Template(templateContent, name: "base.html");
   }
 
@@ -40,9 +40,19 @@ class Compiler {
   Future<void> compile() async {
     if (!await this.destinationDir.exists()) {
       await this.destinationDir.create();
-    }
+    } else {
+			await this.destinationDir.delete(recursive: true);
+			await this.destinationDir.create();
+		}
 
-    final mdFilesStream = await sourceDir.list().where((entity) => path.extension(entity.path) == ".md").cast<File>().toList();
+		final mdFilesStream = await sourceDir.list().where((entity) => path.extension(entity.path) == ".md").cast<File>().toList();
+
+		final mdSubdirs = await sourceDir.list().where((entity) => entity is Directory).cast<Directory>().toList();
+		final mdSubdirsFilesStream = mdSubdirs.map((dir) async => dir.list().where((entity) => path.extension(entity.path) == ".md").cast<File>().toList()).toList();
+
+		for(final sourceFileDir in mdSubdirsFilesStream) {
+			mdFilesStream.addAll(await sourceFileDir);
+		}
 
     for (final sourceFile in mdFilesStream) {
       this.fileContentCache[sourceFile.absolute.path] = await FileCacheable.initFileCacheable(sourceFile);
@@ -69,13 +79,18 @@ class Compiler {
 
   Future<void> processFile(FileCacheable fileCacheable) async {
     final sourceFileName = path.basenameWithoutExtension(fileCacheable.file.path);
-    final destFileName = "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
-
+		final String destFileName;
+		if(path.basename(path.dirname(fileCacheable.file.path)) != "src") {
+			destFileName = "${path.join(destinationDir.absolute.path, path.basename(path.dirname(fileCacheable.file.path)), sourceFileName)}.html";
+		} else {
+			destFileName = "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
+		}
+     
     final compiledContent = await this.processTemplate(fileCacheable.content, fileCacheable.metadata);
 
     final destFile = File(destFileName);
     if (!await destFile.exists()) {
-      await destFile.create();
+      await destFile.create(recursive: true);
     }
 
     await destFile.writeAsString(compiledContent);
@@ -93,9 +108,9 @@ class Compiler {
 
   Iterable<Map<String, dynamic>> _getSidebarEntries() {
     final sidebarEntries = this.fileContentCache.entries.map((entry) => {
-      "url": entry.value.url,
+      "url": path.join(path.basename(path.dirname(entry.value.file.path)), entry.value.url),
       "name": entry.value.metadata.title,
-      "category": entry.value.metadata.title,
+      "category": path.join(path.basename(path.dirname(entry.value.file.path))),
     });
 
     final sidebarEntriesFinal = <Map<String, dynamic>>[];

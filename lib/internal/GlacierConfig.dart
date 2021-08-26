@@ -14,7 +14,7 @@ class GlacierConfig {
       {this.description = "Glacier generated config file",
         this.githubUrl,
         this.sourceDirectory = "./src",
-        this.destinationDirectory = "./dest",
+        this.destinationDirectory = "./dist",
         this.baseDirectory = "./src/base",
       });
 

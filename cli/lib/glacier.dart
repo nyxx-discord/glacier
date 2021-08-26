@@ -1,9 +1,11 @@
 library glacier_cli;
 
 import "dart:async";
+import "dart:convert";
 import "dart:io";
 
 import "package:args/command_runner.dart";
+import "package:http/http.dart" as http;
 import "package:markdown/markdown.dart";
 import "package:mustache_template/mustache.dart";
 import "package:path/path.dart";

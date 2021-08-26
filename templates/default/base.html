@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' href='base.css'>
+    <script defer src="base.js"></script>
+    
+    <link rel="stylesheet"href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/a11y-dark.min.css">
+    <script defer src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+    
+    <title>{{title}}</title>
+</head>
+<body>
+  <div class='sidebar'>
+    {{# sidebar_entries}}
+      <h5>{{category}}</h5>
+      {{# entries}}
+        <p>➡ <a href='{{url}}'>{{name}}</a></p>
+      {{/ entries}}
+    {{/ sidebar_entries}}
+  </div>
+  <div class='body'>
+    {{{body}}}
+  </div>
+</body>
+</html>

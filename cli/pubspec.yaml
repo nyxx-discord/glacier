@@ -8,11 +8,12 @@ environment:
 
 dependencies:
   args: ^2.2.0
+  http: ^0.13.3
   logger: ^1.0.0
   markdown: ^4.0.0
+  mustache_template: ^2.0.0
   path: ^1.8.0
   yaml: ^3.1.0
-  mustache_template: ^2.0.0
 
 executables:
   glacier:

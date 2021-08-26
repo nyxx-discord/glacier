@@ -127,7 +127,7 @@ author: xyz
 timestamp: 2021-08-20
 category: example
 ---
-# ${config.name}"
+# ${config.name}
 """;
 
 class InitCommand extends Command {

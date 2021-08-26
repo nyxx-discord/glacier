@@ -15,7 +15,7 @@ class GlacierConfig {
         this.githubUrl,
         this.sourceDirectory = "./src",
         this.destinationDirectory = "./dist",
-        this.baseDirectory = "./src/base",
+        this.baseDirectory = "./base",
       });
 
   GlacierConfig._fromYaml(String yaml) {

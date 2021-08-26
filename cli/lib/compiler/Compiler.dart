@@ -5,7 +5,7 @@ class FileCacheable {
   late final MarkdownMetadata metadata;
   late final String content;
 
-  String get url => "${basenameWithoutExtension(this.file.path)}.html";
+  String get url => "${path.basenameWithoutExtension(this.file.path)}.html";
 
   FileCacheable(this.file, this.metadata, this.content);
 
@@ -31,7 +31,7 @@ class Compiler {
   late final Template template;
 
   Compiler(this.sourceDir, this.destinationDir, this.baseFilesDir) {
-    final templateContent = File(Uri.parse(join(baseFilesDir.absolute.path, "base.html")).path).readAsStringSync();
+    final templateContent = File(Uri.parse(path.join(baseFilesDir.absolute.path, "base.html")).path).readAsStringSync();
     this.template = Template(templateContent, name: "base.html");
   }
 
@@ -42,7 +42,7 @@ class Compiler {
       await this.destinationDir.create();
     }
 
-    final mdFilesStream = await sourceDir.list().where((entity) => extension(entity.path) == ".md").cast<File>().toList();
+    final mdFilesStream = await sourceDir.list().where((entity) => path.extension(entity.path) == ".md").cast<File>().toList();
 
     for (final sourceFile in mdFilesStream) {
       this.fileContentCache[sourceFile.absolute.path] = await FileCacheable.initFileCacheable(sourceFile);
@@ -58,18 +58,18 @@ class Compiler {
   Future<void> copyFiles() async {
    final filesToCopy = this.baseFilesDir.list()
         .where((event) => event is File)
-        .where((event) => basename(event.path).endsWith(".js") || basename(event.path).endsWith(".css"))
+        .where((event) => path.basename(event.path).endsWith(".js") || path.basename(event.path).endsWith(".css"))
         .where((event) => !event.path.contains("base/base.html"))
         .cast<File>();
 
     await for (final file in filesToCopy) {
-      await file.copy(join(destinationDir.absolute.path, basename(file.path)));
+      await file.copy(path.join(destinationDir.absolute.path, path.basename(file.path)));
     }
   }
 
   Future<void> processFile(FileCacheable fileCacheable) async {
-    final sourceFileName = basenameWithoutExtension(fileCacheable.file.path);
-    final destFileName = "${join(destinationDir.absolute.path, sourceFileName)}.html";
+    final sourceFileName = path.basenameWithoutExtension(fileCacheable.file.path);
+    final destFileName = "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
 
     final compiledContent = await this.processTemplate(fileCacheable.content, fileCacheable.metadata);
 

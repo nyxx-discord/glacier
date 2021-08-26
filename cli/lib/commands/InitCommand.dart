@@ -34,7 +34,7 @@ class InitCommand extends Command {
 
     final srcDirectory = await Directory(config.sourceDirectory).create();
 
-    final exampleFile = await File(join(srcDirectory.absolute.path, "index.md")).create();
+    final exampleFile = await File(path.join(srcDirectory.absolute.path, "index.md")).create();
     await exampleFile.writeAsString(_getConfigMdContent(config));
 
     final baseDirectory = await Directory(config.baseDirectory).create();
@@ -46,19 +46,24 @@ class InitCommand extends Command {
 		final repoApiContentsPath = "https://api.github.com/repos/$repoName/contents/$repoPath";
 		final httpResponse = await http.get(Uri.parse(repoApiContentsPath));
 
-		if(httpResponse.statusCode >= 300 || httpResponse.statusCode <= 200) {
+		if(httpResponse.statusCode >= 300 || httpResponse.statusCode < 200) {
 			throw Exception("Failed to clone the docs base.");
 		}
 
 		final jsonBody = jsonDecode(httpResponse.body) as List<dynamic>;
-		for(final file in jsonBody) {
-			final fileJson = file as Map<String, dynamic>;
+		for(final rawFileData in jsonBody) {
+			final fileJson = rawFileData as Map<String, dynamic>;
 			if((fileJson["download_url"] as String?) == null) {
 				print("No download path for ${fileJson["name"]}, ignoring file.");
 				return;
 			}
 			final fileData = await http.read(Uri.parse(fileJson["download_url"] as String));
-			await File(join(baseDirectory.path, fileJson["path"] as String)).writeAsString(fileData);
+			final filePath = baseDirectory.path + (fileJson["path"] as String).replaceAll(repoPath, "");
+			final file = File(filePath);
+			await file.create(recursive: true);
+			await file.writeAsString(fileData);
 		}
+
+		print("Cloned ${jsonBody.length} files into ${baseDirectory.path}");
 	}
 }

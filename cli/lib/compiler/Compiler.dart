@@ -102,16 +102,23 @@ class Compiler {
     return this.template.renderString({
       "title": metadata.title,
       "body": outputMarkdown,
-      "sidebar_entries": this._getSidebarEntries()
+      "sidebar_entries": this._getSidebarEntries(),
+			"metadata": metadata.rawData,
     });
   }
 
   Iterable<Map<String, dynamic>> _getSidebarEntries() {
-    final sidebarEntries = this.fileContentCache.entries.map((entry) => {
-      "url": path.join(path.basename(path.dirname(entry.value.file.path)), entry.value.url),
-      "name": entry.value.metadata.title,
-      "category": path.join(path.basename(path.dirname(entry.value.file.path))),
-    });
+		
+
+    final sidebarEntries = this.fileContentCache.entries.map((entry) { 
+			final category = path.join(path.basename(path.dirname(entry.value.file.path)));
+
+			return {
+				"url": path.join(path.basename(path.dirname(entry.value.file.path)), entry.value.url),
+				"name": entry.value.metadata.title,
+				"category": category != "src" ? category : null,
+			};
+		});
 
     final sidebarEntriesFinal = <Map<String, dynamic>>[];
     for (final sidebarEntry in sidebarEntries) {

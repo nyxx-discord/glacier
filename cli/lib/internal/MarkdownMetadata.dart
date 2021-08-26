@@ -5,6 +5,7 @@ class MarkdownMetadata {
   late final DateTime timestamp;
   late final String author;
   late final String? category;
+	late final dynamic rawData;
 
   MarkdownMetadata._fromRaw(String metadataPart) {
     final parsed = loadYaml(metadataPart);
@@ -13,5 +14,6 @@ class MarkdownMetadata {
     this.timestamp = DateTime.parse(parsed["timestamp"] as String);
     this.author = parsed["author"] as String;
     this.category = parsed["category"] as String?;
+		this.rawData = parsed;
   }
 }

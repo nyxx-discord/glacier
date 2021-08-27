@@ -16,10 +16,10 @@ class GenerateCommand extends Command {
   @override
   Future<void> run() async {
     final config = GlacierConfig.loadFromFile();
-
-    final sourceDir = Directory.fromUri(Uri.parse(Directory(config.sourceDirectory).absolute.path));
-    final destinationDir = Directory.fromUri(Uri.parse(Directory(config.destinationDirectory).absolute.path));
-    final baseFilesDir = Directory.fromUri(Uri.parse(Directory(config.baseDirectory).absolute.path));
+		
+    final sourceDir = Directory(path.join(Directory.current.absolute.path, config.sourceDirectory.replaceAll("./", "")));
+    final destinationDir = Directory(path.join(Directory.current.absolute.path, config.destinationDirectory.replaceAll("./", "")));
+    final baseFilesDir = Directory(path.join(Directory.current.absolute.path, config.baseDirectory.replaceAll("./", "")));
 
     final compiler = Compiler(sourceDir, destinationDir, baseFilesDir);
     await compiler.compile();

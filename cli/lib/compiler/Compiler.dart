@@ -31,7 +31,9 @@ class Compiler {
   late final Template template;
 
   Compiler(this.sourceDir, this.destinationDir, this.baseFilesDir) {
-    final templateContent = File(Uri.parse(path.join(baseFilesDir.absolute.path, "base.html")).path).readAsStringSync();
+    final templateContent =
+        File(path.join(baseFilesDir.absolute.path, "base.html"))
+            .readAsStringSync();
     this.template = Template(templateContent, name: "base.html");
   }
 
@@ -40,12 +42,37 @@ class Compiler {
   Future<void> compile() async {
     if (!await this.destinationDir.exists()) {
       await this.destinationDir.create();
+    } else {
+      await this.destinationDir.delete(recursive: true);
+      await this.destinationDir.create();
     }
 
-    final mdFilesStream = await sourceDir.list().where((entity) => path.extension(entity.path) == ".md").cast<File>().toList();
+    final mdFilesStream = await sourceDir
+        .list()
+        .where((entity) => path.extension(entity.path) == ".md")
+        .cast<File>()
+        .toList();
+
+    final mdSubdirs = await sourceDir
+        .list()
+        .where((entity) => entity is Directory)
+        .cast<Directory>()
+        .toList();
+    final mdSubdirsFilesStream = mdSubdirs
+        .map((dir) async => dir
+            .list()
+            .where((entity) => path.extension(entity.path) == ".md")
+            .cast<File>()
+            .toList())
+        .toList();
+
+    for (final sourceFileDir in mdSubdirsFilesStream) {
+      mdFilesStream.addAll(await sourceFileDir);
+    }
 
     for (final sourceFile in mdFilesStream) {
-      this.fileContentCache[sourceFile.absolute.path] = await FileCacheable.initFileCacheable(sourceFile);
+      this.fileContentCache[sourceFile.absolute.path] =
+          await FileCacheable.initFileCacheable(sourceFile);
     }
 
     for (final fileCacheableEntry in this.fileContentCache.entries) {
@@ -56,52 +83,76 @@ class Compiler {
   }
 
   Future<void> copyFiles() async {
-   final filesToCopy = this.baseFilesDir.list()
+    final filesToCopy = this
+        .baseFilesDir
+        .list()
         .where((event) => event is File)
-        .where((event) => path.basename(event.path).endsWith(".js") || path.basename(event.path).endsWith(".css"))
+        .where((event) =>
+            path.basename(event.path).endsWith(".js") ||
+            path.basename(event.path).endsWith(".css"))
         .where((event) => !event.path.contains("base/base.html"))
         .cast<File>();
 
     await for (final file in filesToCopy) {
-      await file.copy(path.join(destinationDir.absolute.path, path.basename(file.path)));
+      await file.copy(
+          path.join(destinationDir.absolute.path, path.basename(file.path)));
     }
   }
 
   Future<void> processFile(FileCacheable fileCacheable) async {
-    final sourceFileName = path.basenameWithoutExtension(fileCacheable.file.path);
-    final destFileName = "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
+    final sourceFileName =
+        path.basenameWithoutExtension(fileCacheable.file.path);
+    final String destFileName;
+    if (path.basename(path.dirname(fileCacheable.file.path)) != "src") {
+      destFileName =
+          "${path.join(destinationDir.absolute.path, path.basename(path.dirname(fileCacheable.file.path)), sourceFileName)}.html";
+    } else {
+      destFileName =
+          "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
+    }
 
-    final compiledContent = await this.processTemplate(fileCacheable.content, fileCacheable.metadata);
+    final compiledContent = await this
+        .processTemplate(fileCacheable.content, fileCacheable.metadata);
 
     final destFile = File(destFileName);
     if (!await destFile.exists()) {
-      await destFile.create();
+      await destFile.create(recursive: true);
     }
 
     await destFile.writeAsString(compiledContent);
   }
 
-  Future<String> processTemplate(String inputString, MarkdownMetadata metadata) async {
-    final outputMarkdown = markdownToHtml(inputString, extensionSet: ExtensionSet.gitHubWeb);
+  Future<String> processTemplate(
+      String inputString, MarkdownMetadata metadata) async {
+    final outputMarkdown =
+        markdownToHtml(inputString, extensionSet: ExtensionSet.gitHubWeb);
 
     return this.template.renderString({
       "title": metadata.title,
       "body": outputMarkdown,
-      "sidebar_entries": this._getSidebarEntries()
+      "sidebar_entries": this._getSidebarEntries(),
+      "metadata": metadata.rawData,
     });
   }
 
   Iterable<Map<String, dynamic>> _getSidebarEntries() {
-    final sidebarEntries = this.fileContentCache.entries.map((entry) => {
-      "url": entry.value.url,
-      "name": entry.value.metadata.title,
-      "category": entry.value.metadata.title,
+    final sidebarEntries = this.fileContentCache.entries.map((entry) {
+      final category =
+          path.join(path.basename(path.dirname(entry.value.file.path)));
+
+      return {
+        "url": path.join(path.basename(path.dirname(entry.value.file.path)),
+            entry.value.url),
+        "name": entry.value.metadata.title,
+        "category": category != "src" ? category : null,
+      };
     });
 
     final sidebarEntriesFinal = <Map<String, dynamic>>[];
     for (final sidebarEntry in sidebarEntries) {
       try {
-        final result = sidebarEntriesFinal.firstWhere((element) => element["category"] == sidebarEntry["category"]);
+        final result = sidebarEntriesFinal.firstWhere(
+            (element) => element["category"] == sidebarEntry["category"]);
         result["entries"].add(sidebarEntry);
       } on StateError {
         sidebarEntriesFinal.add({

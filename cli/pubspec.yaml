@@ -1,4 +1,4 @@
-name: glacier_cli
+name: glacier
 version: 0.0.1
 description: Markdown Doc Gen in dart
 homepage: https://github.com/nyxx/glacier

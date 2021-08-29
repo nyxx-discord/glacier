@@ -8,6 +8,7 @@ class ServeCommand extends Command {
   String get name => "serve";
 
   ServeCommand() {
+    argParser.addOption("host", defaultsTo: "localhost");
     argParser.addOption("port", defaultsTo: "3000", valueHelp: "3001");
   }
 
@@ -19,6 +20,7 @@ class ServeCommand extends Command {
       config.destinationDirectory.replaceAll("./", ""),
     );
     final port = int.tryParse(argResults!["port"] as String)!;
+    final host = argResults!["host"] as String;
 
     final handler = shelf_static.createStaticHandler(
       destinationDir,
@@ -26,7 +28,7 @@ class ServeCommand extends Command {
     );
 
     await shelf_io
-        .serve(handler, "localhost", port)
-        .then((_) => print("Running at http://localhost:$port/"));
+        .serve(handler, host, port)
+        .then((_) => print("Running at http://$host:$port/"));
   }
 }

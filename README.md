@@ -23,7 +23,12 @@ Creating a new project:
 glacier init
 ```
 
-Compiling to HTML
+Compiling to HTML:
 ```bash
 glacier generate
+```
+
+Running the builtin preview server:
+```bash
+glacier serve
 ```

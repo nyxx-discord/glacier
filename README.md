@@ -19,19 +19,16 @@ Markdown documentation in Dart language.
 ## How to use
 
 Creating a new project:
-
 ```bash
 glacier init
 ```
 
-Compiling to HTML
-
+Compiling to HTML:
 ```bash
 glacier generate
 ```
 
-Running the builtin preview server
-
+Running the builtin preview server:
 ```bash
 glacier serve
 ```

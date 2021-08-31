@@ -28,9 +28,12 @@ class Compiler {
   final Directory destinationDir;
   final Directory baseFilesDir;
 
+  final GlacierConfig _config;
+
   late final Template template;
 
-  Compiler(this.sourceDir, this.destinationDir, this.baseFilesDir) {
+  Compiler(
+      this.sourceDir, this.destinationDir, this.baseFilesDir, this._config) {
     final templateContent =
         File(path.join(baseFilesDir.absolute.path, "base.html"))
             .readAsStringSync();
@@ -94,8 +97,37 @@ class Compiler {
         .cast<File>();
 
     await for (final file in filesToCopy) {
-      await file.copy(
-          path.join(destinationDir.absolute.path, path.basename(file.path)));
+      if (!(this._config.destinationFilesExclude?.contains(file.path
+              .replaceAll(baseFilesDir.absolute.path, "")
+              .replaceAll("\\", "/")) ??
+          true)) {
+        await file.copy(
+            path.join(destinationDir.absolute.path, path.basename(file.path)));
+      }
+    }
+
+    for (final includePath
+        in this._config.destinationFilesInclude ?? <String>[]) {
+      final file = File(path.join(
+          baseFilesDir.absolute.path,
+          path.relative(
+              includePath.replaceFirst("/", "./").replaceFirst("\\", ".\\"))));
+
+      if (!file.existsSync()) {
+        return;
+      }
+
+      final copyFile = File(path.join(
+          destinationDir.absolute.path,
+          path.relative(
+              includePath.replaceFirst("/", "./").replaceFirst("\\", ".\\"))));
+
+      copyFile.createSync(recursive: true);
+
+      await file.copy(path.join(
+          destinationDir.absolute.path,
+          path.relative(
+              includePath.replaceFirst("/", "./").replaceFirst("\\", ".\\"))));
     }
   }
 

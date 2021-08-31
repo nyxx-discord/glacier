@@ -169,12 +169,12 @@ class Compiler {
 
   Iterable<Map<String, dynamic>> _getSidebarEntries() {
     final sidebarEntries = this.fileContentCache.entries.map((entry) {
-      final category =
-          path.join(path.basename(path.dirname(entry.value.file.path)));
+      final category = path
+          .join(path.basename(path.dirname(entry.value.file.path)))
+          .replaceFirst("src", "");
 
       return {
-        "url": path.join(path.basename(path.dirname(entry.value.file.path)),
-            entry.value.url),
+        "url": path.join(category, entry.value.url),
         "name": entry.value.metadata.title,
         "category": category != "src" ? category : null,
       };

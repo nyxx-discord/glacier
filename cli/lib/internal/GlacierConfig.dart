@@ -42,8 +42,12 @@ class GlacierConfig {
 
   /// Load glacier.yaml from file
   factory GlacierConfig.loadFromFile() {
-    final configFileContent = File("glacier.yaml").readAsStringSync();
-    return GlacierConfig._fromYaml(configFileContent);
+    final configFile = File("glacier.yaml");
+    if (!configFile.existsSync()) {
+      throw new GlacierException("Cannot find glacier config file");
+    }
+
+    return GlacierConfig._fromYaml(configFile.readAsStringSync());
   }
 
   @override

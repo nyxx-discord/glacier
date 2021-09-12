@@ -14,21 +14,30 @@ class ServeCommand extends Command {
 
   @override
   Future<void> run() async {
-    final config = GlacierConfig.loadFromFile();
-    final destinationDir = path.join(
-      Directory.current.absolute.path,
-      Utils.stripRelativePath(config.destinationDirectory),
-    );
-    final port = int.tryParse(argResults!["port"] as String)!;
-    final host = argResults!["host"] as String;
+    try {
+      final config = GlacierConfig.loadFromFile();
+      final destinationDir = path.join(
+        Directory.current.absolute.path,
+        Utils.stripRelativePath(config.destinationDirectory),
+      );
 
-    final handler = shelf_static.createStaticHandler(
-      destinationDir,
-      defaultDocument: "index.html",
-    );
+      if (!Directory(destinationDir).existsSync()) {
+        throw GlacierException("Run `glacier generate` before serving the content");
+      }
 
-    await shelf_io
-        .serve(handler, host, port)
-        .then((_) => print("Running at http://$host:$port/"));
+      final port = int.tryParse(argResults!["port"] as String)!;
+      final host = argResults!["host"] as String;
+
+      final handler = shelf_static.createStaticHandler(
+        destinationDir,
+        defaultDocument: "index.html",
+      );
+
+      await shelf_io
+          .serve(handler, host, port)
+          .then((_) => print("Running at http://$host:$port/"));
+    } on GlacierException catch (e) {
+      print("Error: ${e.message}");
+    }
   }
 }

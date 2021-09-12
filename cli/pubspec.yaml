@@ -1,5 +1,5 @@
 name: glacier
-version: 0.0.1
+version: 0.1.0
 description: Markdown Doc Gen in dart
 homepage: https://github.com/nyxx/glacier
 
@@ -13,6 +13,7 @@ dependencies:
   markdown: ^4.0.0
   mustache_template: ^2.0.0
   path: ^1.8.0
+  shelf: ^1.2.0
   shelf_static: ^1.1.0
   yaml: ^3.1.0
 

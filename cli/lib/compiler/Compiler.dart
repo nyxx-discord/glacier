@@ -97,10 +97,13 @@ class Compiler {
         .cast<File>();
 
     await for (final file in filesToCopy) {
-      if (!(this._config.destinationFilesExclude?.contains(file.path
+      final shouldFileBeExcluded = this
+          ._config
+          .destinationFilesExclude
+          ?.contains(file.path
               .replaceAll(baseFilesDir.absolute.path, "")
-              .replaceAll("\\", "/")) ??
-          true)) {
+              .replaceAll("\\", "/"));
+      if (!(shouldFileBeExcluded ?? true)) {
         await file.copy(
             path.join(destinationDir.absolute.path, path.basename(file.path)));
       }
@@ -108,26 +111,20 @@ class Compiler {
 
     for (final includePath
         in this._config.destinationFilesInclude ?? <String>[]) {
-      final file = File(path.join(
-          baseFilesDir.absolute.path,
-          path.relative(
-              includePath.replaceFirst("/", "./").replaceFirst("\\", ".\\"))));
+      final file = File(path.join(baseFilesDir.absolute.path,
+          path.relative(Utils.makeRelativePath(includePath))));
 
       if (!file.existsSync()) {
         return;
       }
 
-      final copyFile = File(path.join(
-          destinationDir.absolute.path,
-          path.relative(
-              includePath.replaceFirst("/", "./").replaceFirst("\\", ".\\"))));
+      final copyFile = File(path.join(destinationDir.absolute.path,
+          path.relative(Utils.makeRelativePath(includePath))));
 
-      copyFile.createSync(recursive: true);
+      await copyFile.create(recursive: true);
 
-      await file.copy(path.join(
-          destinationDir.absolute.path,
-          path.relative(
-              includePath.replaceFirst("/", "./").replaceFirst("\\", ".\\"))));
+      await file.copy(path.join(destinationDir.absolute.path,
+          path.relative(Utils.makeRelativePath(includePath))));
     }
   }
 

@@ -18,11 +18,11 @@ class GenerateCommand extends Command {
     final config = GlacierConfig.loadFromFile();
 
     final sourceDir = Directory(path.join(Directory.current.absolute.path,
-        config.sourceDirectory.replaceAll("./", "")));
+        Utils.stripRelativePath(config.sourceDirectory)));
     final destinationDir = Directory(path.join(Directory.current.absolute.path,
-        config.destinationDirectory.replaceAll("./", "")));
+        Utils.stripRelativePath(config.destinationDirectory)));
     final baseFilesDir = Directory(path.join(Directory.current.absolute.path,
-        config.baseDirectory.replaceAll("./", "")));
+        Utils.stripRelativePath(config.baseDirectory)));
 
     final compiler = Compiler(sourceDir, destinationDir, baseFilesDir, config);
     await compiler.compile();

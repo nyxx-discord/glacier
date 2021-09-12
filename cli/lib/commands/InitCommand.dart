@@ -18,8 +18,8 @@ class InitCommand extends Command {
   final String description = "Create a new glacier project";
 
   InitCommand() {
-    argParser.addOption("base",
-        abbr: "b", defaultsTo: "nyxx-discord/glacier/templates/default");
+    argParser.addOption("template",
+        abbr: "t", defaultsTo: "nyxx-discord/glacier/templates/default");
   }
 
   @override
@@ -41,12 +41,22 @@ class InitCommand extends Command {
 
     final baseDirectory = await Directory(config.baseDirectory).create();
 
-    final baseArg = argResults!["base"] as String;
+    final baseArg = argResults!["template"] as String;
 
+    // Get the firt 2 parts of the string as this is the repo name and author e.g. nyxx-discord/glacier
     final repoName = baseArg.split("/").sublist(0, 2).join("/");
+    // Gets the rest of the repo path, could be simplifed with another options?
     final repoPath = baseArg.split("/").sublist(2).join("/");
+
+    await downloadTemplate(repoName, repoPath, baseDirectory);
+
+    print("Cloned template files into ${baseDirectory.path}");
+  }
+
+  Future<void> downloadTemplate(
+      String repoName, String path, Directory baseDirectory) async {
     final repoApiContentsPath =
-        "https://api.github.com/repos/$repoName/contents/$repoPath";
+        "https://api.github.com/repos/$repoName/contents/$path";
     final httpResponse = await http.get(Uri.parse(repoApiContentsPath));
 
     if (httpResponse.statusCode >= 300 || httpResponse.statusCode < 200) {
@@ -63,12 +73,10 @@ class InitCommand extends Command {
       final fileData =
           await http.read(Uri.parse(fileJson["download_url"] as String));
       final filePath = baseDirectory.path +
-          (fileJson["path"] as String).replaceAll(repoPath, "");
+          (fileJson["path"] as String).replaceAll(path, "");
       final file = File(filePath);
       await file.create(recursive: true);
       await file.writeAsString(fileData);
     }
-
-    print("Cloned ${jsonBody.length} files into ${baseDirectory.path}");
   }
 }

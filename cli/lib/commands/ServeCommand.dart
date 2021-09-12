@@ -17,7 +17,7 @@ class ServeCommand extends Command {
     final config = GlacierConfig.loadFromFile();
     final destinationDir = path.join(
       Directory.current.absolute.path,
-      config.destinationDirectory.replaceAll("./", ""),
+      Utils.stripRelativePath(config.destinationDirectory),
     );
     final port = int.tryParse(argResults!["port"] as String)!;
     final host = argResults!["host"] as String;

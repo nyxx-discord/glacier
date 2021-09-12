@@ -23,5 +23,6 @@ part "internal/MarkdownMetadata.dart";
 
 part "utils/ConfigUtils.dart";
 part "utils/DirectoryUtils.dart";
+part "utils/Utils.dart";
 
 part "compiler/Compiler.dart";

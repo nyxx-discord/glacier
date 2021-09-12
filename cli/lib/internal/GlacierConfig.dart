@@ -8,15 +8,19 @@ class GlacierConfig {
 
   late final String? description;
   late final String? githubUrl;
+  late final List<String>? destinationFilesExclude;
+  late final List<String>? destinationFilesInclude;
 
   GlacierConfig._new(
-      this.name,
-      {this.description = "Glacier generated config file",
-        this.githubUrl,
-        this.sourceDirectory = "./src",
-        this.destinationDirectory = "./dist",
-        this.baseDirectory = "./base",
-      });
+    this.name, {
+    this.description = "Glacier generated config file",
+    this.githubUrl,
+    this.sourceDirectory = "./src",
+    this.destinationDirectory = "./dist",
+    this.baseDirectory = "./base",
+    this.destinationFilesExclude,
+    this.destinationFilesInclude,
+  });
 
   GlacierConfig._fromYaml(String yaml) {
     final doc = loadYaml(yaml);
@@ -28,6 +32,12 @@ class GlacierConfig {
 
     this.description = doc["description"] as String?;
     this.githubUrl = doc["github_url"] as String?;
+
+    this.destinationFilesExclude =
+        (doc["destination_files"]["exclude"] as YamlList?)?.cast<String>();
+
+    this.destinationFilesInclude =
+        (doc["destination_files"]["include"] as YamlList?)?.cast<String>();
   }
 
   /// Load glacier.yaml from file
@@ -38,15 +48,24 @@ class GlacierConfig {
 
   @override
   String toString() =>
+      // ignore: prefer_interpolation_to_compose_strings
       "# Glacier Config\n" +
       _YamlWriter().write(
-        <String, String>{
+        <String, dynamic>{
           "name": this.name,
           "source_directory": this.sourceDirectory,
           "destination_directory": this.destinationDirectory,
           "base_directory": this.baseDirectory,
           if (this.description != null) "description": this.description!,
           if (this.githubUrl != null) "github_url": this.githubUrl!,
+          if (this.destinationFilesExclude != null ||
+              this.destinationFilesInclude != null)
+            "destination_files": {
+              if (this.destinationFilesInclude != null)
+                "include": this.destinationFilesInclude,
+              if (this.destinationFilesExclude != null)
+                "exclude": this.destinationFilesExclude,
+            }
         },
       );
 }

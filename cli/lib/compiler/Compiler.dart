@@ -103,6 +103,7 @@ class Compiler {
           ?.contains(file.path
               .replaceAll(baseFilesDir.absolute.path, "")
               .replaceAll("\\", "/"));
+
       if (!(shouldFileBeExcluded ?? true)) {
         await file.copy(
             path.join(destinationDir.absolute.path, path.basename(file.path)));
@@ -129,15 +130,13 @@ class Compiler {
   }
 
   Future<void> processFile(FileCacheable fileCacheable) async {
-    final sourceFileName =
-        path.basenameWithoutExtension(fileCacheable.file.path);
+    final sourceFileName = path.basenameWithoutExtension(fileCacheable.file.path);
+
     final String destFileName;
     if (path.basename(path.dirname(fileCacheable.file.path)) != "src") {
-      destFileName =
-          "${path.join(destinationDir.absolute.path, path.basename(path.dirname(fileCacheable.file.path)), sourceFileName)}.html";
+      destFileName = "${path.join(destinationDir.absolute.path, path.basename(path.dirname(fileCacheable.file.path)), sourceFileName)}.html";
     } else {
-      destFileName =
-          "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
+      destFileName = "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
     }
 
     final compiledContent = await this

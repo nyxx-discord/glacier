@@ -6,7 +6,7 @@ class ConfigUtils {
 
   static Future<GlacierConfig> getConfig({String path = "./glacier.yaml"}) async {
     if (!await doesConfigExist(path: path)) {
-      throw "Invalid config path";
+      throw Exception("Invalid config path");
     }
 
     final file = File(path);
@@ -17,7 +17,7 @@ class ConfigUtils {
 
   static GlacierConfig getConfigSync({String path = "./glacier.yaml"}) {
     if (!doesConfigExistSync(path: path)) {
-      throw "Invalid config path";
+      throw Exception("Invalid config path");
     }
 
     final file = File(path);

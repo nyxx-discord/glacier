@@ -35,8 +35,7 @@ class InitCommand extends Command {
 
     final srcDirectory = await Directory(config.sourceDirectory).create();
 
-    final exampleFile =
-        await File(path.join(srcDirectory.absolute.path, "index.md")).create();
+    final exampleFile = await File(path.join(srcDirectory.absolute.path, "index.md")).create();
     await exampleFile.writeAsString(_getConfigMdContent(config));
 
     final baseDirectory = await Directory(config.baseDirectory).create();

@@ -19,7 +19,7 @@ class GlacierConfig {
     this.destinationDirectory = "./dist",
     this.baseDirectory = "./base",
     this.destinationFilesExclude,
-    this.destinationFilesInclude,
+    this.destinationFilesInclude = const ["base.js", "base.css"],
   });
 
   GlacierConfig._fromYaml(String yaml) {
@@ -34,10 +34,10 @@ class GlacierConfig {
     this.githubUrl = doc["github_url"] as String?;
 
     this.destinationFilesExclude =
-        (doc["destination_files"]["exclude"] as YamlList?)?.cast<String>();
+        (doc["destination_files"]?["exclude"] as YamlList?)?.cast<String>();
 
     this.destinationFilesInclude =
-        (doc["destination_files"]["include"] as YamlList?)?.cast<String>();
+        (doc["destination_files"]?["include"] as YamlList?)?.cast<String>();
   }
 
   /// Load glacier.yaml from file

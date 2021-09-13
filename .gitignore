@@ -38,3 +38,6 @@ old.*
 
 .idea/**
 .packages
+node_modules/
+out.css
+*.lock

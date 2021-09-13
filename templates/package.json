@@ -1,0 +1,15 @@
+{
+  "name": "nyxx_docs_theme",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "build:css": "tailwind -i $npm_config_theme/base.pcss -o $npm_config_theme/base.css --minify --postcss --jit",
+    "watch:css": "tailwind -i $npm_config_theme/base.pcss -o $npm_config_theme/base.css --minify --watch --postcss --jit"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.3.3",
+    "postcss": "^8.3.6",
+    "tailwindcss": "^2.2.9"
+  }
+}

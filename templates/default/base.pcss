@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    @apply h-screen flex justify-center text-gray-800 dark:bg-gray-800 dark:text-gray-50;
+}
+
+html body {
+    @apply flex w-full items-start flex-col md:w-7/12;
+}
+
+body .titlebar {
+    @apply hidden md:flex md:flex-row md:justify-center md:items-center md:w-full md:bg-gray-100 md:dark:bg-gray-600;
+}
+
+body .titlebar h4 {
+    @apply font-bold text-2xl my-1;
+}
+
+body .body {
+    @apply md:flex md:flex-row md:items-start md:w-full;
+}
+
+body .sidebar {
+    @apply hidden md:flex md:flex-col md:justify-center md:w-4/12 md:py-4;
+}
+
+body .sidebar .entries {
+    @apply hidden md:flex md:flex-col md:justify-center md:w-full;
+}
+
+body .sidebar .entries h5 {
+    @apply md:font-semibold md:underline;
+}
+
+body .sidebar .entries a {
+    @apply md:pl-2 md:text-blue-100 md:hover:underline md:hover:text-blue-300;
+}
+
+body .sidebar .icon {
+    @apply flex flex-row justify-between content-center w-screen p-4 bg-gray-100 dark:bg-gray-600 md:hidden;
+}
+
+body .sidebar .icon svg {
+    @apply fill-current;
+}
+
+body .sidebar .icon h4 {
+    @apply font-bold text-xl;
+}
+
+body .body .body {
+    @apply flex flex-col w-full h-full md:w-full p-4;
+}
+
+body .body .body a {
+    @apply text-blue-100 hover:underline hover:text-blue-300;
+}
+
+body .body .body h1 {
+    @apply font-bold text-4xl my-1;
+}
+
+body .body .body h2 {
+    @apply font-bold text-3xl my-1;
+}
+
+body .body .body h3 {
+    @apply font-bold text-2xl my-1;
+}
+
+body .body .body h4 {
+    @apply font-bold text-xl my-1;
+}
+
+body .body .body p {
+    @apply text-lg my-0.5;
+}
+
+body .body .body pre code {
+    @apply rounded-lg my-4;
+}

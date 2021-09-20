@@ -32,3 +32,9 @@ Running the builtin preview server:
 ```bash
 glacier serve
 ```
+
+## Custom syntanxes
+
+### Internal link
+
+Internal link have special syntax: `(optional title)(name of md file)`.

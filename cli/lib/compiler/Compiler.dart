@@ -1,5 +1,62 @@
 part of glacier_cli;
 
+class SelfLinkSyntax extends InlineSyntax {
+  static const String selfLinkSyntax = r"\((.*)\)\((.+)\.md\)";
+
+  final List<Map<String, dynamic>> sidebarEntries;
+
+  SelfLinkSyntax(this.sidebarEntries): super(selfLinkSyntax);
+
+  @override
+  bool onMatch(InlineParser parser, Match match) {
+    var title = match.group(1);
+    final fileName = match.group(2);
+
+    if (title != null && title.isEmpty) {
+      title = null;
+    }
+
+    if (fileName == null) {
+      return false;
+    }
+
+    print(title);
+    print(this.sidebarEntries);
+
+    final sidebarEntry = this.findEntry(_getInternalUrl(fileName));
+    if (sidebarEntry != null) {
+      final finalTitle = title ?? sidebarEntry["name"];
+
+      print(sidebarEntry);
+      print(finalTitle);
+
+      parser.addNode(Text("<a href='$fileName.html'>$finalTitle</a>"));
+      return true;
+    }
+
+    if (title != null) {
+      parser.addNode(Text("<a href='$fileName.html'>$title</a>"));
+      return true;
+    }
+
+    return false;
+  }
+
+  String _getInternalUrl(String name) => "$name.html";
+
+  Map<String, dynamic>? findEntry(String url) {
+    for(final sidebarEntry in this.sidebarEntries) {
+      for (final e in sidebarEntry["entries"]) {
+        if (e["url"] == url) {
+          return e as Map<String, dynamic>;
+        }
+      }
+    }
+
+    return null;
+  }
+}
+
 class FileCacheable {
   late final File file;
   late final MarkdownMetadata metadata;
@@ -150,15 +207,19 @@ class Compiler {
     await destFile.writeAsString(compiledContent);
   }
 
-  Future<String> processTemplate(
-      String inputString, MarkdownMetadata metadata) async {
-    final outputMarkdown =
-        markdownToHtml(inputString, extensionSet: ExtensionSet.gitHubWeb);
+  Future<String> processTemplate(String inputString, MarkdownMetadata metadata) async {
+    final sidebarEntries = this._getSidebarEntries();
+
+    final outputMarkdown = markdownToHtml(
+        inputString,
+        extensionSet: ExtensionSet.gitHubWeb,
+        inlineSyntaxes: [SelfLinkSyntax(sidebarEntries.toList())]
+    );
 
     return this.template.renderString({
       "title": metadata.title,
       "body": outputMarkdown,
-      "sidebar_entries": this._getSidebarEntries(),
+      "sidebar_entries": sidebarEntries,
       "metadata": metadata.rawData,
     });
   }

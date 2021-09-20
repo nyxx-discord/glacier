@@ -19,3 +19,7 @@
 # 0.3.1
 
 * Fix bug with internal link syntax
+
+# 0.3.2
+
+* Bug: Do not generate subdirs are subdirs on destination

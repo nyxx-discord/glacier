@@ -182,13 +182,7 @@ class Compiler {
 
   Future<void> processFile(FileCacheable fileCacheable) async {
     final sourceFileName = path.basenameWithoutExtension(fileCacheable.file.path);
-
-    final String destFileName;
-    if (path.basename(path.dirname(fileCacheable.file.path)) != "src") {
-      destFileName = "${path.join(destinationDir.absolute.path, path.basename(path.dirname(fileCacheable.file.path)), sourceFileName)}.html";
-    } else {
-      destFileName = "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
-    }
+    final destFileName = "${path.join(destinationDir.absolute.path, sourceFileName)}.html";
 
     final compiledContent = await this
         .processTemplate(fileCacheable.content, fileCacheable.metadata);
@@ -225,7 +219,7 @@ class Compiler {
           .replaceFirst("src", "");
 
       return {
-        "url": path.join(category, entry.value.url),
+        "url": entry.value.url,
         "name": entry.value.metadata.title,
         "category": category != "src" ? category : null,
       };

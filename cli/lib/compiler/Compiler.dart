@@ -20,15 +20,9 @@ class SelfLinkSyntax extends InlineSyntax {
       return false;
     }
 
-    print(title);
-    print(this.sidebarEntries);
-
     final sidebarEntry = this.findEntry(_getInternalUrl(fileName));
     if (sidebarEntry != null) {
       final finalTitle = title ?? sidebarEntry["name"];
-
-      print(sidebarEntry);
-      print(finalTitle);
 
       parser.addNode(Text("<a href='$fileName.html'>$finalTitle</a>"));
       return true;

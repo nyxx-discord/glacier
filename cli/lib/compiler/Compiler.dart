@@ -141,9 +141,11 @@ class Compiler {
         .baseFilesDir
         .list()
         .where((event) => event is File)
-        .where((event) =>
-            path.basename(event.path).endsWith(".js") ||
-            path.basename(event.path).endsWith(".css"))
+        .where((event) {
+          final baseName = path.basename(event.path);
+
+          return baseName.endsWith(".js") || baseName.endsWith(".css") || baseName.endsWith(".png");
+        })
         .where((event) => !event.path.contains("base/base.html"))
         .cast<File>();
 

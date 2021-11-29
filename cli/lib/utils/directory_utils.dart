@@ -1,4 +1,4 @@
-part of glacier_cli;
+import 'dart:io';
 
 // TODO fix?
 class DirectoryUtils {

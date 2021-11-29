@@ -1,6 +1,15 @@
-part of glacier_cli;
+import 'dart:io';
 
-class ServeCommand extends Command {
+import 'package:glacier/internal/glacier_exception.dart';
+import 'package:args/command_runner.dart';
+import 'package:path/path.dart' as path;
+import "package:shelf/shelf_io.dart" as shelf_io;
+import "package:shelf_static/shelf_static.dart" as shelf_static;
+
+import 'package:glacier/internal/glacier_config.dart';
+import 'package:glacier/utils/utils.dart';
+
+class ServeCommand extends Command<int> {
   @override
   String get description => "Run the builtin development server";
 
@@ -13,7 +22,7 @@ class ServeCommand extends Command {
   }
 
   @override
-  Future<void> run() async {
+  Future<int> run() async {
     try {
       final config = GlacierConfig.loadFromFile();
       final destinationDir = path.join(
@@ -33,11 +42,13 @@ class ServeCommand extends Command {
         defaultDocument: "index.html",
       );
 
-      await shelf_io
-          .serve(handler, host, port)
-          .then((_) => print("Running at http://$host:$port/"));
+      await shelf_io.serve(handler, host, port).then((_) => print("Running at http://$host:$port/"));
+
+      return 0;
     } on GlacierException catch (e) {
       print("Error: ${e.message}");
+
+      return 1;
     }
   }
 }

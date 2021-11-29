@@ -1,15 +1,13 @@
-part of glacier_cli;
-
 /*
  * Original credits to: https://stackoverflow.com/questions/60051282/how-to-write-a-map-to-a-yaml-file-in-dart, needs to be checked & updated
  */
 
-class _YamlWriter {
+class YamlWriter {
   /// The amount of spaces for each level.
   final int spaces;
 
   /// Initialize the writer with the amount of [spaces] per level.
-  _YamlWriter({
+  YamlWriter({
     this.spaces = 2,
   });
 

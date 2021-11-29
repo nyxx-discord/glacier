@@ -1,4 +1,12 @@
-part of glacier_cli;
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:args/command_runner.dart';
+import 'package:path/path.dart' as path;
+import "package:http/http.dart" as http;
+
+import 'package:glacier/internal/glacier_config.dart';
+import 'package:glacier/utils/config_utils.dart';
 
 String _getConfigMdContent(GlacierConfig config) => """
 ---
@@ -10,7 +18,7 @@ category: example
 # ${config.name}
 """;
 
-class InitCommand extends Command {
+class InitCommand extends Command<int> {
   @override
   final String name = "init";
 
@@ -18,12 +26,11 @@ class InitCommand extends Command {
   final String description = "Create a new glacier project";
 
   InitCommand() {
-    argParser.addOption("template",
-        abbr: "t", defaultsTo: "nyxx-discord/glacier/templates/default");
+    argParser.addOption("template", abbr: "t", defaultsTo: "nyxx-discord/glacier/templates/default");
   }
 
   @override
-  Future<void> run() async {
+  Future<int> run() async {
     if (await ConfigUtils.doesConfigExist()) {
       throw Exception("Config already exists!");
     }
@@ -50,12 +57,12 @@ class InitCommand extends Command {
     await downloadTemplate(repoName, repoPath, baseDirectory);
 
     print("Cloned template files into ${baseDirectory.path}");
+
+    return 0;
   }
 
-  Future<void> downloadTemplate(
-      String repoName, String path, Directory baseDirectory) async {
-    final repoApiContentsPath =
-        "https://api.github.com/repos/$repoName/contents/$path";
+  Future<void> downloadTemplate(String repoName, String path, Directory baseDirectory) async {
+    final repoApiContentsPath = "https://api.github.com/repos/$repoName/contents/$path";
     final httpResponse = await http.get(Uri.parse(repoApiContentsPath));
 
     if (httpResponse.statusCode >= 300 || httpResponse.statusCode < 200) {
@@ -69,10 +76,8 @@ class InitCommand extends Command {
         print("No download path for ${fileJson["name"]}, ignoring file.");
         return;
       }
-      final fileData =
-          await http.read(Uri.parse(fileJson["download_url"] as String));
-      final filePath = baseDirectory.path +
-          (fileJson["path"] as String).replaceAll(path, "");
+      final fileData = await http.read(Uri.parse(fileJson["download_url"] as String));
+      final filePath = baseDirectory.path + (fileJson["path"] as String).replaceAll(path, "");
       final file = File(filePath);
       await file.create(recursive: true);
       await file.writeAsString(fileData);

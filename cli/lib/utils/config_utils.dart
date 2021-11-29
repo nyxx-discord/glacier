@@ -1,8 +1,9 @@
-part of glacier_cli;
+import 'dart:io';
+
+import 'package:glacier/internal/glacier_config.dart';
 
 class ConfigUtils {
-  static GlacierConfig createConfig({String? name}) =>
-      GlacierConfig._new(name ?? Directory.current.path.replaceAll("\\", "/").split("/").last);
+  static GlacierConfig createConfig({String? name}) => GlacierConfig(name ?? Directory.current.path.replaceAll("\\", "/").split("/").last);
 
   static Future<GlacierConfig> getConfig({String path = "./glacier.yaml"}) async {
     if (!await doesConfigExist(path: path)) {
@@ -12,7 +13,7 @@ class ConfigUtils {
     final file = File(path);
     final content = await file.readAsString();
 
-    return GlacierConfig._fromYaml(content);
+    return GlacierConfig.fromYaml(content);
   }
 
   static GlacierConfig getConfigSync({String path = "./glacier.yaml"}) {
@@ -23,7 +24,7 @@ class ConfigUtils {
     final file = File(path);
     final content = file.readAsStringSync();
 
-    return GlacierConfig._fromYaml(content);
+    return GlacierConfig.fromYaml(content);
   }
 
   static bool doesConfigExistSync({String path = "./glacier.yaml"}) => File(path).existsSync();

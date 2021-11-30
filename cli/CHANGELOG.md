@@ -1,3 +1,10 @@
+# 0.5.0
+
+* Allow subdirectories for src files
+* Put images in `assets` directory
+
+Additionally, refactored and cleaned up internal code.
+
 # 0.4.0
 
 * Feature: Allow copying png images

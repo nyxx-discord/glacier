@@ -1,3 +1,7 @@
+# 0.5.1
+
+* Fixup critical bug that prevented application from properly launching
+
 # 0.5.0
 
 * Allow subdirectories for src files

@@ -1,13 +1,12 @@
 import 'dart:io';
 
-import 'package:glacier/internal/glacier_exception.dart';
 import 'package:args/command_runner.dart';
+import 'package:glacier/internal/glacier_config.dart';
+import 'package:glacier/internal/glacier_exception.dart';
+import 'package:glacier/utils/utils.dart';
 import 'package:path/path.dart' as path;
 import "package:shelf/shelf_io.dart" as shelf_io;
 import "package:shelf_static/shelf_static.dart" as shelf_static;
-
-import 'package:glacier/internal/glacier_config.dart';
-import 'package:glacier/utils/utils.dart';
 
 class ServeCommand extends Command<int> {
   @override
@@ -27,7 +26,7 @@ class ServeCommand extends Command<int> {
       final config = GlacierConfig.loadFromFile();
       final destinationDir = path.join(
         Directory.current.absolute.path,
-        Utils.stripRelativePath(config.destinationDirectory),
+        Utils.stripRelativePath(config.build.directory),
       );
 
       if (!Directory(destinationDir).existsSync()) {

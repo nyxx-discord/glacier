@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:glacier/internal/glacier_config.dart';
 
 class ConfigUtils {
-  static GlacierConfig createConfig({String? name}) => GlacierConfig(name ?? Directory.current.path.replaceAll("\\", "/").split("/").last);
+  static GlacierConfig createConfig({String? name}) =>
+      GlacierConfig(name ?? Directory.current.path.replaceAll("\\", "/").split("/").last, "./src");
 
   static Future<GlacierConfig> getConfig({String path = "./glacier.yaml"}) async {
     if (!await doesConfigExist(path: path)) {

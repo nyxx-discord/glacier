@@ -1,46 +1,76 @@
 import 'dart:io';
 
-import 'package:yaml/yaml.dart';
-
 import 'package:glacier/internal/glacier_exception.dart';
 import 'package:glacier/internal/yaml_writer.dart';
+import 'package:yaml/yaml.dart';
+
+class GlacierTemplateConfig {
+  late final String directory;
+  late final List<String>? exclude;
+
+  GlacierTemplateConfig(
+    this.directory, {
+    this.exclude,
+  });
+
+  GlacierTemplateConfig.fromYaml(String yaml) {
+    final doc = loadYaml(yaml);
+
+    directory = doc["directory"] as String;
+    exclude = (doc["exclude"] as YamlList?)?.cast<String>();
+  }
+
+  GlacierTemplateConfig.fromYamlObject(YamlMap doc) {
+    directory = doc["directory"] as String;
+    exclude = (doc["exclude"] as YamlList?)?.cast<String>();
+  }
+}
+
+class GlacierBuildConfig {
+  late final String directory;
+  late final String? buildCommand;
+
+  GlacierBuildConfig(
+    this.directory, {
+    this.buildCommand,
+  });
+
+  GlacierBuildConfig.fromYaml(String yaml) {
+    final doc = loadYaml(yaml);
+
+    directory = doc["directory"] as String;
+    buildCommand = doc["build_command"] as String?;
+  }
+
+  GlacierBuildConfig.fromYamlObject(YamlMap doc) {
+    directory = doc["directory"] as String;
+    buildCommand = doc["build_command"] as String?;
+  }
+}
 
 class GlacierConfig {
   late final String name;
-  late final String sourceDirectory;
-  late final String destinationDirectory;
-  late final String baseDirectory;
-
-  late final String? description;
   late final String? githubUrl;
-  late final List<String>? destinationFilesExclude;
-  late final List<String>? destinationFilesInclude;
+  late final String? description;
 
-  GlacierConfig(
-    this.name, {
-    this.description = "Glacier generated config file",
-    this.githubUrl,
-    this.sourceDirectory = "./src",
-    this.destinationDirectory = "./dist",
-    this.baseDirectory = "./base",
-    this.destinationFilesExclude,
-    this.destinationFilesInclude = const ["base.js", "base.css"],
-  });
+  late final String sourceDirectory;
+
+  late final GlacierTemplateConfig template;
+  late final GlacierBuildConfig build;
+
+  GlacierConfig(this.name, this.sourceDirectory, {this.githubUrl, this.description = "Glacier generated config file"}) {
+    template = GlacierTemplateConfig("./static");
+  }
 
   GlacierConfig.fromYaml(String yaml) {
     final doc = loadYaml(yaml);
 
     name = doc["name"] as String;
-    sourceDirectory = doc["source_directory"] as String;
-    destinationDirectory = doc["destination_directory"] as String;
-    baseDirectory = doc["base_directory"] as String;
-
+    sourceDirectory = doc["source"] as String;
     description = doc["description"] as String?;
-    githubUrl = doc["github_url"] as String?;
 
-    destinationFilesExclude = (doc["destination_files"]?["exclude"] as YamlList?)?.cast<String>();
-
-    destinationFilesInclude = (doc["destination_files"]?["include"] as YamlList?)?.cast<String>();
+    template = GlacierTemplateConfig.fromYamlObject(doc["template"] as YamlMap);
+    build = GlacierBuildConfig.fromYamlObject(doc["build"] as YamlMap);
   }
 
   /// Load glacier.yaml from file
@@ -60,16 +90,16 @@ class GlacierConfig {
       YamlWriter().write(
         <String, dynamic>{
           "name": name,
-          "source_directory": sourceDirectory,
-          "destination_directory": destinationDirectory,
-          "base_directory": baseDirectory,
           if (description != null) "description": description!,
           if (githubUrl != null) "github_url": githubUrl!,
-          if (destinationFilesExclude != null || destinationFilesInclude != null)
-            "destination_files": {
-              if (destinationFilesInclude != null) "include": destinationFilesInclude,
-              if (destinationFilesExclude != null) "exclude": destinationFilesExclude,
-            }
+          "template": {
+            "directory": template.directory,
+            if (template.exclude != null) "exclude": template.exclude,
+          },
+          "build": {
+            "directory": build.directory,
+            if (build.buildCommand != null) "command": build.buildCommand,
+          }
         },
       );
 }

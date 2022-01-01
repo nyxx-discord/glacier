@@ -15,4 +15,13 @@ class Author {
     url = doc["url"] as String?;
     title = doc["title"] as String?;
   }
+
+  Map<String, String> toJson() {
+    return <String, String>{
+      "name": name,
+      if (imageUrl != null) "image_url": imageUrl!,
+      if (url != null) "url": url!,
+      if (title != null) "title": title!,
+    };
+  }
 }

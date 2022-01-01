@@ -6,18 +6,18 @@ import 'package:yaml/yaml.dart';
 
 class AuthorUtils {
   /// Load glacier.yaml from file
-  static List<Author> getAuthorsFromFile({String? file}) {
-    final configFile = File(file ?? "authors.yml");
+  static Map<String, Author> getAuthorsFromFile({String? file}) {
+    final configFile = File(file ?? "authors.yaml");
     if (!configFile.existsSync()) {
       throw GlacierException("Cannot find author config file");
     }
 
     final doc = loadYaml(configFile.readAsStringSync());
 
-    final List<Author> authors = [];
+    final Map<String, Author> authors = {};
 
     (doc as YamlMap).keys.forEach((key) {
-      authors.add(Author.fromYamlObject(doc[key] as YamlMap));
+      authors[key as String] = Author.fromYamlObject(doc[key] as YamlMap);
     });
 
     return authors;

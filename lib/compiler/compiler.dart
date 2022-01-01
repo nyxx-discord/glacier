@@ -14,13 +14,13 @@ class Compiler {
   late final Directory templateDirectory;
   late final Directory outDirectory;
 
-  late final List<Author> authors;
+  late final Map<String, Author> authors;
   late final GlacierConfig config;
 
   late final Template template;
 
   final Map<String, FileCacheable> fileContentCache = {};
-  final Iterable<Map<String, dynamic>> sidebarEntries = [];
+  Iterable<Map<String, dynamic>> sidebarEntries = [];
 
   Compiler(
       {required this.sourceDirectory,
@@ -52,12 +52,14 @@ class Compiler {
       }
     }
 
+    sidebarEntries = _getSidebarEntries();
+
     final templateFiles = _findFilesForPath(templateDirectory);
 
     await for (final sourceFile in templateFiles) {
       final extension = path.extension(sourceFile.path);
 
-      if (!['.html', '.mustache'].contains(extension)) {
+      if (!['.html', '.mustache'].contains(extension) && !(config.template.exclude ?? []).contains(sourceFile.path)) {
         await sourceFile.copy(path.join(outDirectory.path, path.basename(sourceFile.path)));
       }
     }
@@ -65,6 +67,32 @@ class Compiler {
     for (final fileCacheableEntry in fileContentCache.entries) {
       await _processFile(fileCacheableEntry.value);
     }
+  }
+
+  Iterable<Map<String, dynamic>> _getSidebarEntries() {
+    final sidebarEntries = fileContentCache.entries.map((entry) {
+      final category = path.join(path.basename(path.dirname(entry.value.file.path))).replaceFirst("src", "");
+
+      return {
+        "url": entry.value.url,
+        "name": entry.value.metadata.title,
+        "category": category != "src" ? category : null,
+      };
+    });
+
+    final sidebarEntriesFinal = <Map<String, dynamic>>[];
+    for (final sidebarEntry in sidebarEntries) {
+      try {
+        final result = sidebarEntriesFinal.firstWhere((element) => element["category"] == sidebarEntry["category"]);
+        result["entries"].add(sidebarEntry);
+      } on StateError {
+        sidebarEntriesFinal.add({
+          "category": sidebarEntry["category"],
+          "entries": [sidebarEntry],
+        });
+      }
+    }
+    return sidebarEntriesFinal;
   }
 
   Future<void> _processFile(FileCacheable fileCacheable) async {
@@ -87,12 +115,11 @@ class Compiler {
   }
 
   Future<Map<String, dynamic>> _generateMustacheMetadata(FileCacheable file) async {
-    final Author author = authors.firstWhere((a) => a.name.toLowerCase() == file.metadata.author.toLowerCase(),
-        orElse: () => Author(file.metadata.author));
+    final Author? author = authors[file.metadata.author];
 
     return <String, dynamic>{
       "title": file.metadata.title,
-      "author": author,
+      "author": (author ?? Author(file.metadata.author)).toJson(),
       "category": file.metadata.category,
       "sidebar_entries": sidebarEntries,
       "metadata": file.metadata.rawData,
